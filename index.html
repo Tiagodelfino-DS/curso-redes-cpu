@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Redes de Computadores</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #333;
+    }
+
+    /* TELA DE MÓDULOS */
+    #tela-modulos { display: block; }
+    #tela-aula    { display: none; }
+
+    header {
+      background: #1a73e8;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 6px; }
+    header p  { font-size: 0.95rem; opacity: 0.9; }
+
+    .grade {
+      max-width: 860px;
+      margin: 30px auto;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+    .card .icone { font-size: 2rem; margin-bottom: 10px; }
+    .card h2 { font-size: 0.95rem; color: #1a73e8; margin-bottom: 6px; }
+    .card p  { font-size: 0.82rem; color: #666; }
+
+    /* TELA DE AULA */
+    .aula-header {
+      background: #1a73e8;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-voltar {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-voltar:hover { background: rgba(255,255,255,0.35); }
+
+    .aula-conteudo {
+      max-width: 760px;
+      margin: 30px auto;
+      padding: 0 16px;
+    }
+
+    .bloco {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      line-height: 1.7;
+    }
+    .bloco h3 {
+      color: #1a73e8;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    .bloco p { margin-bottom: 10px; font-size: 0.95rem; }
+    .bloco ul { padding-left: 20px; font-size: 0.95rem; }
+    .bloco ul li { margin-bottom: 6px; }
+
+    .destaque {
+      background: #e8f0fe;
+      border-left: 4px solid #1a73e8;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin: 14px 0;
+      font-size: 0.92rem;
+    }
+
+    /* QUIZ */
+    .quiz-pergunta {
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+    .quiz-opcoes button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f0f4f8;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .quiz-opcoes button:hover { background: #dbe8fd; }
+    .quiz-opcoes button.certa  { background: #d4edda; border-color: #28a745; }
+    .quiz-opcoes button.errada { background: #f8d7da; border-color: #dc3545; }
+    .quiz-feedback {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      font-weight: bold;
+    }
+
+    .nav-aulas {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0 40px;
+    }
+    .btn-nav {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-nav:disabled { background: #ccc; cursor: default; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.78rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== TELA DE MÓDULOS ========== -->
+<div id="tela-modulos">
+  <header>
+    <h1>🌐 Redes de Computadores</h1>
+    <p>Curso introdutório para o Ensino Médio</p>
+  </header>
+
+  <div class="grade" id="grade-cards"></div>
+  <footer>Curso de Redes de Computadores — Ensino Médio</footer>
+</div>
+
+<!-- ========== TELA DE AULA ========== -->
+<div id="tela-aula">
+  <div class="aula-header">
+    <button class="btn-voltar" onclick="voltarMenu()">← Voltar</button>
+    <span id="titulo-aula" style="font-size:1rem; font-weight:bold;"></span>
+  </div>
+  <div class="aula-conteudo" id="aula-conteudo"></div>
+</div>
+
+<script>
+  // ============================================================
+  //  DADOS DAS AULAS
+  // ============================================================
+  const aulas = [
+    {
+      icone: "📡",
+      titulo: "Aula 1 — O que é uma Rede?",
+      resumo: "Conceito de rede, tipos e para que servem.",
+      conteudo: `
+        <div class="bloco">
+          <h3>O que é uma rede de computadores?</h3>
+          <p>Uma rede de computadores é um conjunto de dois ou mais dispositivos (computadores, celulares, impressoras) conectados entre si para trocar informações e compartilhar recursos.</p>
+          <p>Imagine a rede como uma grande teia de aranha: cada ponto da teia é um dispositivo, e os fios são os caminhos pelos quais os dados viajam.</p>
+          <div class="destaque">💡 Sem redes, não existiria internet, e-mail, streaming ou mensagens instantâneas.</div>
+        </div>
+        <div class="bloco">
+          <h3>Tipos de rede</h3>
+          <ul>
+            <li><strong>LAN (Local Area Network)</strong> — rede local, como a da sua casa ou escola. Cobre uma área pequena.</li>
+            <li><strong>MAN (Metropolitan Area Network)</strong> — cobre uma cidade inteira, como a rede de uma prefeitura.</li>
+            <li><strong>WAN (Wide Area Network)</strong> — cobre grandes distâncias, como países ou continentes. A internet é o maior exemplo de WAN.</li>
+          </ul>
+        </div>
+        <div class="bloco">
+          <h3>Para que serve uma rede?</h3>
+          <p>As principais funções de uma rede são: compartilhar arquivos e impressoras, acessar a internet, comunicar-se em tempo real (chat, vídeo chamada) e armazenar dados em servidores centralizados.</p>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Qual tipo de rede cobre a área de uma única escola ou residência?",
+        opcoes: ["WAN", "MAN", "LAN", "VPN"],
+        certa: 2,
+        explicacao: "LAN (Local Area Network) é a rede local, usada em casa, escolas e empresas pequenas."
+      }
+    },
+    {
+      icone: "🔌",
+      titulo: "Aula 2 — Topologias de Rede",
+      resumo: "Estrela, barramento, anel e malha.",
+      conteudo: `
+        <div class="bloco">
+          <h3>O que é topologia?</h3>
+          <p>Topologia é a forma como os dispositivos de uma rede estão organizados e conectados entre si. É como o "mapa" da rede.</p>
+        </div>
+        <div class="bloco">
+          <h3>Topologia Estrela ⭐</h3>
+          <p>Todos os dispositivos se conectam a um ponto central (switch ou roteador). É a mais usada hoje em dia.</p>
+          <div class="destaque">✅ Vantagem: se um cabo falha, só aquele dispositivo é afetado.<br>❌ Desvantagem: se o ponto central falha, toda a rede cai.</div>
+        </div>
+        <div class="bloco">
+          <h3>Topologia Barramento 🚌</h3>
+          <p>Todos os dispositivos são conectados a um único cabo central (o barramento). Antiga, raramente usada hoje.</p>
+          <div class="destaque">❌ Desvantagem: se o cabo central falha, toda a rede para.</div>
+        </div>
+        <div class="bloco">
+          <h3>Topologia Anel 🔄</h3>
+          <p>Os dispositivos formam um círculo. Os dados circulam em uma direção até chegar ao destino.</p>
+        </div>
+        <div class="bloco">
+          <h3>Topologia Malha 🕸️</h3>
+          <p>Cada dispositivo se conecta a vários outros. Muito segura e redundante, mas cara. Usada em redes críticas.</p>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Qual topologia é a mais usada em redes domésticas e escolares atualmente?",
+        opcoes: ["Barramento", "Anel", "Malha", "Estrela"],
+        certa: 3,
+        explicacao: "A topologia Estrela é a mais comum hoje, pois é fácil de instalar e gerenciar."
+      }
+    },
+    {
+      icone: "🖥️",
+      titulo: "Aula 3 — Dispositivos de Rede",
+      resumo: "Hub, switch, roteador e modem.",
+      conteudo: `
+        <div class="bloco">
+          <h3>Hub</h3>
+          <p>O hub é um dispositivo simples que repete o sinal para todos os dispositivos conectados a ele, sem saber para quem o dado é destinado. Hoje está praticamente obsoleto.</p>
+          <div class="destaque">📦 Analogia: como um megafone — todo mundo ouve tudo.</div>
+        </div>
+        <div class="bloco">
+          <h3>Switch</h3>
+          <p>O switch é mais inteligente que o hub. Ele identifica cada dispositivo pelo endereço MAC e envia os dados apenas para o destinatário correto.</p>
+          <div class="destaque">📬 Analogia: como um carteiro — entrega a carta só para o destinatário certo.</div>
+        </div>
+        <div class="bloco">
+          <h3>Roteador</h3>
+          <p>O roteador conecta redes diferentes entre si. Em casa, ele conecta sua rede local (LAN) à internet (WAN). Ele também distribui endereços IP para os dispositivos.</p>
+          <div class="destaque">🗺️ Analogia: como um GPS — escolhe o melhor caminho para os dados chegarem ao destino.</div>
+        </div>
+        <div class="bloco">
+          <h3>Modem</h3>
+          <p>O modem converte o sinal da sua operadora de internet (que pode vir pelo cabo telefônico, fibra óptica ou antena) em sinal digital que os dispositivos entendem. Modem + roteador formam o aparelho que você tem em casa.</p>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Qual dispositivo envia os dados somente para o destinatário correto, usando o endereço MAC?",
+        opcoes: ["Hub", "Modem", "Switch", "Cabo de rede"],
+        certa: 2,
+        explicacao: "O Switch identifica os dispositivos pelo endereço MAC e envia os dados apenas para quem deve recebê-los."
+      }
+    },
+    {
+      icone: "📋",
+      titulo: "Aula 4 — Modelo OSI",
+      resumo: "As 7 camadas e o que cada uma faz.",
+      conteudo: `
+        <div class="bloco">
+          <h3>O que é o Modelo OSI?</h3>
+          <p>O Modelo OSI (Open Systems Interconnection) é um padrão criado para explicar como os dados se movem em uma rede. Ele divide a comunicação em 7 camadas, onde cada camada tem uma função específica.</p>
+          <div class="destaque">💡 Pense nas camadas como uma fábrica: cada setor faz sua parte antes de passar para o próximo.</div>
+        </div>
+        <div class="bloco">
+          <h3>As 7 Camadas</h3>
+          <ul>
+            <li><strong>7 - Aplicação:</strong> Interface com o usuário. Ex: navegador, e-mail.</li>
+            <li><strong>6 - Apresentação:</strong> Traduz, comprime e criptografa os dados.</li>
+            <li><strong>5 - Sessão:</strong> Abre, mantém e encerra a comunicação entre dois sistemas.</li>
+            <li><strong>4 - Transporte:</strong> Garante que os dados cheguem completos e na ordem certa. (TCP/UDP)</li>
+            <li><strong>3 - Rede:</strong> Cuida do endereçamento IP e escolha de rotas.</li>
+            <li><strong>2 - Enlace:</strong> Transfere dados entre dispositivos na mesma rede local. Usa o endereço MAC.</li>
+            <li><strong>1 - Física:</strong> Cabos, sinais elétricos, Wi-Fi — o meio físico da comunicação.</li>
+          </ul>
+        </div>
+        <div class="bloco">
+          <h3>Como memorizar?</h3>
+          <p>De baixo para cima: <strong>F</strong>ísica, <strong>E</strong>nlace, <strong>R</strong>ede, <strong>T</strong>ransporte, <strong>S</strong>essão, <strong>A</strong>presentação, <strong>A</strong>plicação.</p>
+          <div class="destaque">🧠 Dica: "Favor Estudar Redes Todo Santo Amaldiçoado Ano"</div>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Qual camada do Modelo OSI é responsável pelo endereçamento IP e roteamento?",
+        opcoes: ["Camada Física", "Camada de Enlace", "Camada de Rede", "Camada de Transporte"],
+        certa: 2,
+        explicacao: "A Camada de Rede (camada 3) cuida do endereçamento IP e da escolha das rotas pelos dados."
+      }
+    },
+    {
+      icone: "🔗",
+      titulo: "Aula 5 — Modelo TCP/IP",
+      resumo: "Como os dados viajam pela internet.",
+      conteudo: `
+        <div class="bloco">
+          <h3>O que é o TCP/IP?</h3>
+          <p>TCP/IP é o conjunto de protocolos que a internet usa de verdade. Enquanto o Modelo OSI é teórico, o TCP/IP é o que está rodando agora enquanto você lê isso.</p>
+          <p>TCP significa <em>Transmission Control Protocol</em> e IP significa <em>Internet Protocol</em>.</p>
+        </div>
+        <div class="bloco">
+          <h3>As 4 Camadas do TCP/IP</h3>
+          <ul>
+            <li><strong>Aplicação:</strong> HTTP, FTP, DNS, SMTP — protocolos que os programas usam.</li>
+            <li><strong>Transporte:</strong> TCP (confiável, confirma entrega) e UDP (rápido, sem confirmação).</li>
+            <li><strong>Internet:</strong> Endereçamento IP e roteamento.</li>
+            <li><strong>Acesso à rede:</strong> A parte física — cabos, Wi-Fi, fibra óptica.</li>
+          </ul>
+        </div>
+        <div class="bloco">
+          <h3>TCP vs UDP</h3>
+          <p>O <strong>TCP</strong> garante que todos os dados chegam, na ordem certa. Usado em e-mails, downloads e páginas web.</p>
+          <p>O <strong>UDP</strong> é mais rápido mas não garante entrega. Usado em jogos online, vídeo chamadas e streaming ao vivo.</p>
+          <div class="destaque">🎮 Num jogo online, é melhor chegar rápido do que chegar completo — por isso usam UDP.</div>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Qual protocolo de transporte é mais adequado para streaming de vídeo ao vivo?",
+        opcoes: ["TCP", "UDP", "HTTP", "IP"],
+        certa: 1,
+        explicacao: "O UDP é mais rápido e tolerante a perdas, ideal para streaming e jogos onde a velocidade importa mais que a perfeição."
+      }
+    },
+    {
+      icone: "🏷️",
+      titulo: "Aula 6 — Endereçamento IP",
+      resumo: "IPv4, IPv6, máscara e endereço MAC.",
+      conteudo: `
+        <div class="bloco">
+          <h3>O que é um endereço IP?</h3>
+          <p>O endereço IP é como o CEP de um dispositivo na rede. Ele identifica de onde os dados saem e para onde devem ir.</p>
+        </div>
+        <div class="bloco">
+          <h3>IPv4</h3>
+          <p>É o formato mais usado até hoje. Tem o formato de 4 grupos de números separados por pontos: <strong>192.168.1.1</strong></p>
+          <p>Cada grupo vai de 0 a 255, o que dá cerca de 4 bilhões de endereços possíveis. Como a internet cresceu muito, esses endereços estão acabando.</p>
+          <div class="destaque">🏠 192.168.x.x são endereços privados, usados dentro da sua casa ou escola.</div>
+        </div>
+        <div class="bloco">
+          <h3>IPv6</h3>
+          <p>O substituto do IPv4. Usa 128 bits e tem o formato: <strong>2001:0db8:85a3:0000:0000:8a2e:0370:7334</strong></p>
+          <p>Oferece uma quantidade quase infinita de endereços, resolvendo o problema do IPv4.</p>
+        </div>
+        <div class="bloco">
+          <h3>Máscara de Sub-rede</h3>
+          <p>A máscara define qual parte do IP identifica a rede e qual identifica o dispositivo. Ex: <strong>255.255.255.0</strong> significa que os três primeiros grupos identificam a rede.</p>
+        </div>
+        <div class="bloco">
+          <h3>Endereço MAC</h3>
+          <p>É o endereço físico da placa de rede, único para cada dispositivo do mundo. Formato: <strong>00:1A:2B:3C:4D:5E</strong>. Diferente do IP, o MAC não muda.</p>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Por que o IPv6 foi criado?",
+        opcoes: [
+          "Para substituir o cabo de rede pelo Wi-Fi",
+          "Porque os endereços IPv4 estavam se esgotando",
+          "Para aumentar a velocidade da internet",
+          "Para melhorar a segurança dos roteadores"
+        ],
+        certa: 1,
+        explicacao: "O IPv6 foi criado porque os aproximadamente 4 bilhões de endereços IPv4 não são suficientes para todos os dispositivos conectados hoje."
+      }
+    },
+    {
+      icone: "🌍",
+      titulo: "Aula 7 — Como a Internet Funciona",
+      resumo: "DNS, servidores, hospedagem e tráfego de dados.",
+      conteudo: `
+        <div class="bloco">
+          <h3>A internet é uma rede de redes</h3>
+          <p>A internet não é um lugar físico único. É uma enorme interligação de milhões de redes ao redor do mundo, conectadas por cabos submarinos, satélites e fibra óptica.</p>
+        </div>
+        <div class="bloco">
+          <h3>O que é DNS?</h3>
+          <p>DNS (Domain Name System) é o sistema que traduz nomes fáceis de lembrar (como <em>google.com</em>) em endereços IP que os computadores entendem.</p>
+          <div class="destaque">📖 Analogia: o DNS é como uma lista telefônica. Você busca o nome e ele te dá o número (IP).</div>
+        </div>
+        <div class="bloco">
+          <h3>O que acontece quando você acessa um site?</h3>
+          <p>1. Você digita um endereço no navegador.<br>
+             2. O DNS converte o nome no IP do servidor.<br>
+             3. Seu navegador envia uma requisição HTTP para esse servidor.<br>
+             4. O servidor responde com o conteúdo do site.<br>
+             5. Seu navegador exibe a página.</p>
+        </div>
+        <div class="bloco">
+          <h3>Servidores e Hospedagem</h3>
+          <p>Um servidor é um computador que fica ligado 24 horas por dia para responder às requisições dos usuários. Hospedar um site significa colocar seus arquivos em um servidor acessível pela internet.</p>
+        </div>
+      `,
+      quiz: {
+        pergunta: "Qual é a função principal do DNS?",
+        opcoes: [
+          "Proteger a rede contra vírus",
+          "Distribuir endereços IP automaticamente",
+          "Traduzir nomes de domínio em endereços IP",
+          "Conectar dois roteadores"
+        ],
+        certa: 2,
+        explicacao: "O DNS traduz nomes de domínio (como google.com) em endereços IP que os computadores usam para se comunicar."
+      }
+    },
+    {
+      icone: "🔒",
+      titulo: "Aula 8 — Segurança em Redes",
+      resumo: "Firewall, VPN, vírus e boas práticas.",
+      conteudo: `
+        <div class="bloco">
+          <h3>Por que segurança em redes é importante?</h3>
+          <p>Tudo que trafega em uma rede pode ser interceptado por pessoas mal-intencionadas. Por isso existem ferramentas e práticas para proteger as informações.</p>
+        </div>
+        <div class="bloco">
+          <h3>Firewall</h3>
+          <p>O firewall é um sistema que monitora e filtra o tráfego de rede, bloqueando conexões não autorizadas. Pode ser um software no computador ou um equipamento físico na rede.</p>
+          <div class="destaque">🛡️ Analogia: o firewall é como um segurança na porta que só deixa entrar quem tem autorização.</div>
+        </div>
+        <div class="bloco">
+          <h3>VPN</h3>
+          <p>VPN (Virtual Private Network) cria um túnel criptografado entre seu dispositivo e um servidor, protegendo seus dados mesmo em redes públicas (como Wi-Fi de shopping).</p>
+        </div>
+        <div class="bloco">
+          <h3>Ameaças comuns</h3>
+          <ul>
+            <li><strong>Vírus e Malware:</strong> programas maliciosos que danificam ou roubam dados.</li>
+            <li><strong>Phishing:</strong> e-mails ou sites falsos que enganam o usuário para roubar senhas.</li>
+            <li><strong>Ataque DDoS:</strong> sobrecarga de um servidor com milhões de requisições para derrubá-lo.</li>
+          </ul>
+        </div>
+        <div class="bloco">
+          <h3>Boas práticas</h3>
+          <p>Use senhas fortes e únicas, ative a autenticação em dois fatores, não clique em links suspeitos, mantenha o sistema atualizado e use antivírus confiável.</p>
+          <div class="destaque">🔑 Uma senha forte tem letras maiúsculas, minúsculas, números e símbolos.</div>
+        </div>
+      `,
+      quiz: {
+        pergunta: "O que é phishing?",
+        opcoes: [
+          "Um tipo de firewall",
+          "Um ataque que sobrecarrega o servidor",
+          "Um golpe que usa sites ou e-mails falsos para roubar dados",
+          "Um protocolo de segurança"
+        ],
+        certa: 2,
+        explicacao: "Phishing é um golpe onde criminosos usam e-mails ou sites falsos para enganar usuários e roubar senhas e informações pessoais."
+      }
+    }
+  ];
+
+  // ============================================================
+  //  RENDERIZAR CARDS
+  // ============================================================
+  const grade = document.getElementById('grade-cards');
+  aulas.forEach((aula, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="icone">${aula.icone}</div>
+      <h2>${aula.titulo}</h2>
+      <p>${aula.resumo}</p>
+    `;
+    card.onclick = () => abrirAula(i);
+    grade.appendChild(card);
+  });
+
+  // ============================================================
+  //  ABRIR AULA
+  // ============================================================
+  let aulaAtual = 0;
+
+  function abrirAula(index) {
+    aulaAtual = index;
+    const aula = aulas[index];
+
+    document.getElementById('tela-modulos').style.display = 'none';
+    document.getElementById('tela-aula').style.display = 'block';
+    document.getElementById('titulo-aula').textContent = aula.titulo;
+    window.scrollTo(0, 0);
+
+    const q = aula.quiz;
+    const opcoesHTML = q.opcoes.map((op, i) =>
+      `<button onclick="responder(this, ${i}, ${q.certa})">${op}</button>`
+    ).join('');
+
+    document.getElementById('aula-conteudo').innerHTML = `
+      ${aula.conteudo}
+      <div class="bloco">
+        <h3>📝 Quiz Rápido</h3>
+        <p class="quiz-pergunta">${q.pergunta}</p>
+        <div class="quiz-opcoes" id="quiz-opcoes">${opcoesHTML}</div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+      </div>
+      <div class="nav-aulas">
+        <button class="btn-nav" onclick="abrirAula(${index - 1})" ${index === 0 ? 'disabled' : ''}>← Anterior</button>
+        <button class="btn-nav" onclick="abrirAula(${index + 1})" ${index === aulas.length - 1 ? 'disabled' : ''}>Próxima →</button>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  //  QUIZ
+  // ============================================================
+  function responder(btn, escolha, certa) {
+    const botoes = document.querySelectorAll('.quiz-opcoes button');
+    botoes.forEach(b => b.disabled = true);
+
+    const feedback = document.getElementById('quiz-feedback');
+    if (escolha === certa) {
+      btn.classList.add('certa');
+      feedback.style.color = '#28a745';
+      feedback.textContent = '✅ Correto! ' + aulas[aulaAtual].quiz.explicacao;
+    } else {
+      btn.classList.add('errada');
+      botoes[certa].classList.add('certa');
+      feedback.style.color = '#dc3545';
+      feedback.textContent = '❌ Errado. ' + aulas[aulaAtual].quiz.explicacao;
+    }
+  }
+
+  // ============================================================
+  //  VOLTAR AO MENU
+  // ============================================================
+  function voltarMenu() {
+    document.getElementById('tela-modulos').style.display = 'block';
+    document.getElementById('tela-aula').style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
